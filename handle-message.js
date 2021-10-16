@@ -1,6 +1,7 @@
 "use strict";
 
 const { Client, Guild, GuildChannel, GuildMember, Message, User } = require("discord.js");
+const { check } = require("./check");
 const { settings } = require("./settings");
 
 exports.handleMessage = async (message) => {
@@ -27,6 +28,12 @@ exports.handleMessage = async (message) => {
     const segments = content.slice(1).split(" ");
     const command = segments[0];
     const options = segments.slice(1);
+
+    if (command === "CHECK") {
+        await check(message, options);
+
+        return;
+    }
 
     if (command === "SETTINGS") {
         await settings(message, options);
