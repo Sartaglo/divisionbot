@@ -3,6 +3,7 @@
 const { Client, Guild, GuildChannel, GuildMember, Message, User } = require("discord.js");
 const { check } = require("./check");
 const { settings } = require("./settings");
+const { update } = require("./update");
 
 exports.handleMessage = async (message) => {
     if (!(message instanceof Message)
@@ -27,16 +28,16 @@ exports.handleMessage = async (message) => {
 
     const segments = content.slice(1).split(" ");
     const command = segments[0];
-    const options = segments.slice(1);
+    const parameters = segments.slice(1);
 
     if (command === "CHECK") {
-        await check(message, options);
+        await check(message, parameters);
 
         return;
     }
 
     if (command === "SETTINGS") {
-        await settings(message, options);
+        await settings(message, parameters);
 
         return;
     }
@@ -44,6 +45,12 @@ exports.handleMessage = async (message) => {
     if (command === "STOP") {
         await message.channel.send("Goodbye.");
         message.client.destroy();
+
+        return;
+    }
+
+    if (command === "UPDATE") {
+        await update(message, parameters);
 
         return;
     }
