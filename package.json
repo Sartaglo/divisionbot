@@ -6,6 +6,6 @@
         "node": "16.10.0"
     },
     "scripts": {
-        "start": "node main.js"
+        "start": "npx node main.js"
     }
 }
