@@ -1,37 +1,36 @@
 "use strict";
 
 const axios = require("axios").default;
-const { GuildMember, Message } = require("discord.js");
+const { GuildMember, Guild } = require("discord.js");
 
-const getGuildMember = (message, input) => {
+const getGuildMember = (guild, input) => {
     if (typeof input !== "string" || input.length === 0) {
         return null;
     }
 
-    if (/<@!\d+>/.test(input)) {
-        return message.guild.members.fetch(input.substr(3, input.length - 4));
+    if (/^<@!\d+>$/.test(input)) {
+        return guild.members.fetch(input.substr(3, input.length - 4));
     }
 
-    if (/<@\d+>/.test(input)) {
-        return message.guild.members.fetch(input.substr(2, input.length - 3));
+    if (/^<@\d+>$/.test(input)) {
+        return guild.members.fetch(input.substr(2, input.length - 3));
     }
 
-    if (/\d+/.test(input)) {
-        return message.guild.members.fetch(input);
+    if (/^\d+$/.test(input)) {
+        return guild.members.fetch(input);
     }
 
     return null;
 };
 
-exports.parsePlayer = async (message, configuration, input) => {
-    if (!(message instanceof Message) || typeof input !== "string" || input.length === 0) {
+exports.parsePlayer = async (guild, configuration, input) => {
+    if (!(guild instanceof Guild) || typeof input !== "string" || input.length === 0) {
         return { userId: null, playerName: null, userRoles: null };
     }
 
-    const member = await getGuildMember(message, input);
-
+    const member = await getGuildMember(guild, input);
     const playerResponse = member instanceof GuildMember
-        ? await axios.get(`https://www.mkwlounge.gg/api/player.php?discord_user_id=${member.id}`)
+        ? await axios.get(`https://www.mkwlounge.gg/api/player.php?discord_user_id=${member.user.id}`)
         : await axios.get(`https://www.mkwlounge.gg/api/player.php?player_name=${input}`);
 
     if (typeof playerResponse !== "object"

@@ -4,6 +4,7 @@ const { Client, Guild, GuildChannel, GuildMember, Message, User } = require("dis
 const { check } = require("./check");
 const { settings } = require("./settings");
 const { update } = require("./update");
+const { watch } = require("./watch");
 
 exports.handleMessage = async (message) => {
     if (!(message instanceof Message)
@@ -31,7 +32,7 @@ exports.handleMessage = async (message) => {
     const parameters = segments.slice(1);
 
     if (command === "CHECK") {
-        await check(message, parameters);
+        await check(message.guild, message.channel, parameters);
 
         return;
     }
@@ -50,7 +51,13 @@ exports.handleMessage = async (message) => {
     }
 
     if (command === "UPDATE") {
-        await update(message, parameters);
+        await update(message.guild, message.channel, parameters);
+
+        return;
+    }
+
+    if (command === "WATCH") {
+        await watch(message.guild, message.channel);
 
         return;
     }
