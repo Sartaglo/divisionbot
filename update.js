@@ -27,7 +27,7 @@ exports.update = async (guild, channel, parameters) => {
         return;
     }
 
-    if (!(channel instanceof GuildChannel) && !configuration.watching) {
+    if (!configuration.watch) {
         return;
     }
 
