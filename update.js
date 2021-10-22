@@ -74,7 +74,7 @@ exports.update = async (guild, channel, parameters) => {
             members.map(
                 (member) => new Promise(
                     async (resolve) => {
-                        const { userId, userRoles } = await parsePlayer(guild, member.user.id);
+                        const { userId, userRoles } = await parsePlayer(guild, configuration, member.user.id);
 
                         if (typeof userId !== "string" || userId.length === 0 || !Array.isArray(userRoles)) {
                             resolve();
