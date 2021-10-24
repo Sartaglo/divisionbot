@@ -8,16 +8,20 @@ const getGuildMember = (guild, input) => {
         return null;
     }
 
-    if (/^<@!\d+>$/.test(input)) {
-        return guild.members.fetch(input.substr(3, input.length - 4));
-    }
+    try {
+        if (/^<@!\d+>$/.test(input)) {
+            return guild.members.fetch(input.substr(3, input.length - 4));
+        }
 
-    if (/^<@\d+>$/.test(input)) {
-        return guild.members.fetch(input.substr(2, input.length - 3));
-    }
+        if (/^<@\d+>$/.test(input)) {
+            return guild.members.fetch(input.substr(2, input.length - 3));
+        }
 
-    if (/^\d+$/.test(input)) {
-        return guild.members.fetch(input);
+        if (/^\d+$/.test(input)) {
+            return guild.members.fetch(input);
+        }
+    } catch (error) {
+        console.error(error);
     }
 
     return null;
