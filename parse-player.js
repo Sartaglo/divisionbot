@@ -3,22 +3,22 @@
 const axios = require("axios").default;
 const { GuildMember, Guild } = require("discord.js");
 
-const getGuildMember = (guild, input) => {
+const getGuildMember = async (guild, input) => {
     if (typeof input !== "string" || input.length === 0) {
         return null;
     }
 
     try {
         if (/^<@!\d+>$/.test(input)) {
-            return guild.members.fetch(input.substr(3, input.length - 4));
+            return await guild.members.fetch(input.substr(3, input.length - 4));
         }
 
         if (/^<@\d+>$/.test(input)) {
-            return guild.members.fetch(input.substr(2, input.length - 3));
+            return await guild.members.fetch(input.substr(2, input.length - 3));
         }
 
         if (/^\d+$/.test(input)) {
-            return guild.members.fetch(input);
+            return await guild.members.fetch(input);
         }
     } catch (error) {
         console.error(error);
