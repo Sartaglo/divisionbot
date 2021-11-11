@@ -57,26 +57,41 @@ exports.update = async (guild, channel, parameters) => {
             return;
         }
 
+        let updatedNickname = false;
+
         if (canManageNicknames) {
-            await member.setNickname(playerName);
+            try {
+                await member.setNickname(playerName);
+                updatedNickname = true;
+            } catch (error) {
+                console.error(error);
+            }
         }
 
+        let updatedRoles = false;
+
         if (canManageRoles) {
-            for (const userRole of userRoles) {
-                if (userRole.belongsInDivision) {
-                    await member.roles.add(userRole.roleId);
-                } else {
-                    await member.roles.remove(userRole.roleId);
+            try {
+                for (const userRole of userRoles) {
+                    if (userRole.belongsInDivision) {
+                        await member.roles.add(userRole.roleId);
+                    } else {
+                        await member.roles.remove(userRole.roleId);
+                    }
                 }
+
+                updatedRoles = true;
+            } catch (error) {
+                console.error(error);
             }
         }
 
         if (hasChannel) {
-            if (canManageNicknames && canManageRoles) {
+            if (updatedNickname && updatedRoles) {
                 await channel.send("Updated that user's name and roles.");
-            } else if (canManageNicknames) {
+            } else if (updatedNickname) {
                 await channel.send("Updated that user's name.");
-            } else if (canManageRoles) {
+            } else if (updatedRoles) {
                 await channel.send("Updated that user's roles.");
             }
         }
@@ -176,7 +191,13 @@ exports.update = async (guild, channel, parameters) => {
         console.error(error);
 
         if (hasMessage) {
-            await message.edit("Error updating roles.");
+            if (canManageNicknames && canManageRoles) {
+                await message.edit("Error updating name and roles.");
+            } else if (canManageNicknames) {
+                await message.edit("Error updating name.");
+            } else if (canManageRoles) {
+                await message.edit("Error updating roles.");
+            }
         }
     }
 };
