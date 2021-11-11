@@ -134,7 +134,7 @@ exports.settings = async (message, parameters) => {
         return;
     }
 
-    const requirement = division.requirements[Number.parseInt(parameters[2], 10) - 1];
+    const requirement = division.requirements[Number.parseInt(parameters[1], 10) - 1];
 
     if (typeof requirement !== "object" || requirement === null) {
         await message.channel.send("No such requirement exists for that division.");
@@ -142,7 +142,7 @@ exports.settings = async (message, parameters) => {
         return;
     }
 
-    if (parameters[3] === "-") {
+    if (parameters[2] === "-") {
         division.requirements.splice(division.requirements.indexOf(requirement), 1);
         writeConfiguration(message.guild.id, configuration);
         await message.channel.send("Requirement deleted.");
