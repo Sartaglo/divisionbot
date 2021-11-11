@@ -32,7 +32,7 @@ exports.update = async (guild, channel, parameters) => {
         return;
     }
 
-    if (!configuration.watch) {
+    if (!hasChannel && !configuration.watch) {
         return;
     }
 
