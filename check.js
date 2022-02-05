@@ -12,15 +12,11 @@ exports.check = async (guild, channel, parameters) => {
     const configuration = readConfiguration(guild.id);
 
     if (typeof configuration !== "object" || configuration === null) {
-        await channel.send("This server does not have any settings.");
-
-        return;
+        configuration = {};
     }
 
-    if (!Array.isArray(configuration.divisions) || configuration.divisions.length === 0) {
-        await channel.send("This server does not have any divisions.");
-
-        return;
+    if (!Array.isArray(configuration.divisions)) {
+        configuration.divisions = [];
     }
 
     if (parameters.length === 0) {

@@ -16,33 +16,28 @@ exports.update = async (guild, channel, parameters) => {
         await channel.send("I do not have permission to manage nicknames in this server.");
     }
 
-    const canManageRoles = guild.me.permissions.has("MANAGE_ROLES");
-
-    if (!canManageRoles && hasChannel) {
-        await channel.send("I do not have permission to manage roles in this server.");
-    }
-
     const configuration = readConfiguration(guild.id);
 
     if (typeof configuration !== "object" || configuration === null) {
-        if (hasChannel) {
-            await channel.send("This server does not have any settings.");
-        }
+        configuration = {};
+    }
 
-        return;
+    if (!Array.isArray(configuration.divisions)) {
+        configuration.divisions = [];
+    }
+
+    const hasDivisions = configuration.divisions.length > 0;
+    const canManageRoles = guild.me.permissions.has("MANAGE_ROLES");
+
+    if (hasDivisions && !canManageRoles && hasChannel) {
+        await channel.send("I do not have permission to manage roles in this server.");
     }
 
     if (!hasChannel && !configuration.watch) {
         return;
     }
 
-    if (!Array.isArray(configuration.divisions) || configuration.divisions.length === 0) {
-        if (hasChannel) {
-            await channel.send("This server does not have any divisions.");
-        }
-
-        return;
-    }
+    const hasDivisionsAndCanManageRoles = hasDivisions && canManageRoles;
 
     if (typeof parameters[0] === "string" && parameters[0].length > 0) {
         const { userId, playerName, userRoles } = await parsePlayer(guild, configuration, parameters[0]);
@@ -70,7 +65,7 @@ exports.update = async (guild, channel, parameters) => {
 
         let updatedRoles = false;
 
-        if (canManageRoles) {
+        if (hasDivisionsAndCanManageRoles) {
             try {
                 for (const userRole of userRoles) {
                     if (userRole.belongsInDivision) {
@@ -132,7 +127,7 @@ exports.update = async (guild, channel, parameters) => {
                             }
                         }
 
-                        if (canManageRoles) {
+                        if (hasDivisionsAndCanManageRoles) {
                             for (const userRole of userRoles) {
                                 if (userRole.belongsInDivision) {
                                     try {
@@ -161,7 +156,7 @@ exports.update = async (guild, channel, parameters) => {
                         count += 1;
 
                         if (hasMessage) {
-                            if (canManageNicknames && canManageRoles) {
+                            if (canManageNicknames && hasDivisionsAndCanManageRoles) {
                                 await message.edit(
                                     `Updating the names and roles of users... ${count}/${members.size}`,
                                 );
@@ -179,7 +174,7 @@ exports.update = async (guild, channel, parameters) => {
         );
 
         if (hasMessage) {
-            if (canManageNicknames && canManageRoles) {
+            if (canManageNicknames && hasDivisionsAndCanManageRoles) {
                 await message.edit(`Updated the names and roles of ${count}/${members.size} users.`);
             } else if (canManageNicknames) {
                 await message.edit(`Updated the names of ${count}/${members.size} users.`);
@@ -191,7 +186,7 @@ exports.update = async (guild, channel, parameters) => {
         console.error(error);
 
         if (hasMessage) {
-            if (canManageNicknames && canManageRoles) {
+            if (canManageNicknames && hasDivisionsAndCanManageRoles) {
                 await message.edit("Error updating name and roles.");
             } else if (canManageNicknames) {
                 await message.edit("Error updating name.");
