@@ -9,7 +9,7 @@ exports.check = async (guild, channel, parameters) => {
         return;
     }
 
-    const existingConfiguration = readConfiguration(message.guild.id);
+    const existingConfiguration = readConfiguration(guild.id);
     const configuration = typeof existingConfiguration === "object" && existingConfiguration !== null
         ? existingConfiguration
         : {};

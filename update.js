@@ -16,7 +16,7 @@ exports.update = async (guild, channel, parameters) => {
         await channel.send("I do not have permission to manage nicknames in this server.");
     }
 
-    const existingConfiguration = readConfiguration(message.guild.id);
+    const existingConfiguration = readConfiguration(guild.id);
     const configuration = typeof existingConfiguration === "object" && existingConfiguration !== null
         ? existingConfiguration
         : {};
