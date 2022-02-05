@@ -9,11 +9,10 @@ exports.check = async (guild, channel, parameters) => {
         return;
     }
 
-    const configuration = readConfiguration(guild.id);
-
-    if (typeof configuration !== "object" || configuration === null) {
-        configuration = {};
-    }
+    const existingConfiguration = readConfiguration(message.guild.id);
+    const configuration = typeof existingConfiguration === "object" && existingConfiguration !== null
+        ? existingConfiguration
+        : {};
 
     if (!Array.isArray(configuration.divisions)) {
         configuration.divisions = [];

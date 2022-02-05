@@ -16,11 +16,10 @@ exports.update = async (guild, channel, parameters) => {
         await channel.send("I do not have permission to manage nicknames in this server.");
     }
 
-    const configuration = readConfiguration(guild.id);
-
-    if (typeof configuration !== "object" || configuration === null) {
-        configuration = {};
-    }
+    const existingConfiguration = readConfiguration(message.guild.id);
+    const configuration = typeof existingConfiguration === "object" && existingConfiguration !== null
+        ? existingConfiguration
+        : {};
 
     if (!Array.isArray(configuration.divisions)) {
         configuration.divisions = [];
