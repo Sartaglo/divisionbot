@@ -52,7 +52,7 @@ exports.parsePlayer = async (guild, configuration, input) => {
     const playerName = playerResponse.data.results[0].player_name;
     const userId = `${playerResponse.data.results[0].discord_user_id}`;
     const leaderboardResponse = await axios.get(
-        `https://www.mkwlounge.gg/api/ladderplayer.php?ladder_id=1&player_id=${playerId}`,
+        `https://www.mkwlounge.gg/api/ladderplayer.php?ladder_id=3&player_id=${playerId}`,
     );
 
     if (typeof leaderboardResponse !== "object"
