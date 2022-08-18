@@ -65,7 +65,15 @@ exports.settings = async (message, parameters) => {
     }
 
     if (parameters[1] === "+") {
-        const property = parameters[2];
+        const leaderboardId = Number.parseInt(parameters[2], 10);
+
+        if (!Number.isInteger(leaderboardId)) {
+            await message.channel.send("Invalid leaderboard ID.");
+
+            return;
+        }
+
+        const property = parameters[3];
 
         if (property !== "PEAKMMR") {
             await message.channel.send("Unsupported property provided.");
@@ -73,7 +81,7 @@ exports.settings = async (message, parameters) => {
             return;
         }
 
-        const operator = parameters[3];
+        const operator = parameters[4];
 
         if (operator !== ">=" && operator !== "<=") {
             await message.channel.send("Unsupported operator provided.");
@@ -81,7 +89,7 @@ exports.settings = async (message, parameters) => {
             return;
         }
 
-        const value = Number.parseInt(parameters[4], 10);
+        const value = Number.parseInt(parameters[5], 10);
 
         if (!Number.isInteger(value)) {
             await message.channel.send("Unsupported value provided.");
@@ -93,7 +101,7 @@ exports.settings = async (message, parameters) => {
             division.requirements = [];
         }
 
-        division.requirements.push({ property, operator, value });
+        division.requirements.push({ property, leaderboardId, operator, value });
         writeConfiguration(message.guild.id, configuration);
         await message.channel.send("Requirement added.");
 
@@ -120,7 +128,7 @@ exports.settings = async (message, parameters) => {
             + division.requirements
                 .map(
                     (requirement, index) =>
-                        `(${index + 1}) ${requirement.property} ${requirement.operator} ${requirement.value}`,
+                        `(${index + 1}) ${requirement.property} ${requirement.leaderboardId || 3} ${requirement.operator} ${requirement.value}`,
                 )
                 .join('\n'),
         );

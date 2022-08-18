@@ -51,21 +51,38 @@ exports.parsePlayer = async (guild, configuration, input) => {
     const playerId = playerResponse.data.results[0].player_id;
     const playerName = playerResponse.data.results[0].player_name;
     const userId = `${playerResponse.data.results[0].discord_user_id}`;
-    const leaderboardResponse = await axios.get(
-        `https://www.mkwlounge.gg/api/ladderplayer.php?ladder_id=3&player_id=${playerId}`,
-    );
+    const leaderboardIds = configuration.divisions
+        .filter((division) => Array.isArray(division.requirements))
+        .reduce(
+            (accumulator, division) => [
+                ...accumulator,
+                ...division.requirements.map((requirement) => requirement.leaderboardId),
+            ],
+            [],
+        )
+        .filter(
+            (leaderboardId, index, self) => Number.isInteger(leaderboardId) && self.indexOf(leaderboardId) === index,
+        );
+    const profiles = new Map();
 
-    if (typeof leaderboardResponse !== "object"
-        || leaderboardResponse === null
-        || typeof leaderboardResponse.data !== "object"
-        || leaderboardResponse.data === null
-        || !Array.isArray(leaderboardResponse.data.results)
-        || typeof leaderboardResponse.data.results[0] !== "object"
-        || leaderboardResponse.data.results[0] === null) {
-        return { userId: null, playerName: null, userRoles: null };
+    for (const leaderboardId of leaderboardIds) {
+        const leaderboardResponse = await axios.get(
+            `https://www.mkwlounge.gg/api/ladderplayer.php?ladder_id=${leaderboardId}&player_id=${playerId}`,
+        );
+
+        if (typeof leaderboardResponse !== "object"
+            || leaderboardResponse === null
+            || typeof leaderboardResponse.data !== "object"
+            || leaderboardResponse.data === null
+            || !Array.isArray(leaderboardResponse.data.results)
+            || typeof leaderboardResponse.data.results[0] !== "object"
+            || leaderboardResponse.data.results[0] === null) {
+            return { userId: null, playerName: null, userRoles: null };
+        }
+
+        profiles.set(leaderboardId, leaderboardResponse.data.results[0]);
     }
 
-    const profile = leaderboardResponse.data.results[0];
     const userRoles = [];
 
     for (const division of configuration.divisions) {
@@ -80,6 +97,8 @@ exports.parsePlayer = async (guild, configuration, input) => {
                         return true;
                     }
 
+                    const leaderboardId = Number.isInteger(requirement.leaderboardId) ? requirement.leaderboardId : 3;
+                    const profile = profiles.get(leaderboardId);
                     const value = profile.total_events < 10 ? profile.current_mmr : profile.peak_mmr;
 
                     return requirement.operator === ">=" ? value >= requirement.value : value <= requirement.value;
