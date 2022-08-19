@@ -98,6 +98,11 @@ exports.parsePlayer = async (guild, configuration, input) => {
                     }
 
                     const leaderboardId = Number.isInteger(requirement.leaderboardId) ? requirement.leaderboardId : 3;
+
+                    if (!profiles.has(leaderboardId)) {
+                        return false;
+                    }
+
                     const profile = profiles.get(leaderboardId);
                     const value = profile.total_events < 10 ? profile.current_mmr : profile.peak_mmr;
 
