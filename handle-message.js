@@ -6,6 +6,8 @@ const { settings } = require("./settings");
 const { update } = require("./update");
 const { watch } = require("./watch");
 
+const adminId = "484822486861611011";
+
 exports.handleMessage = async (message) => {
     if (!(message instanceof Message)
         || !(message.client instanceof Client)
@@ -30,6 +32,27 @@ exports.handleMessage = async (message) => {
     const segments = content.slice(1).split(" ");
     const command = segments[0];
     const parameters = segments.slice(1);
+
+    if (command === "GUILDS") {
+        if (message.author.id !== adminId) {
+            return;
+        }
+
+        try {
+            const guilds = Array.from(message.client.guilds.cache.values());
+            await message.channel.send(
+                "I am in the following guild"
+                + (guilds.length === 1 ? "" : "s")
+                + ":\n"
+                + guilds
+                    .map((guild) => guild.name + " (" + guild.id + ")")
+                    .join("\n"),
+            );
+        } catch (error) {
+            console.error(error.stack);
+            await admin.send(error.stack);
+        }
+    }
 
     if (command === "CHECK") {
         await check(message.guild, message.channel, parameters);
