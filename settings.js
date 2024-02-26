@@ -14,6 +14,32 @@ exports.settings = async (message, parameters) => {
         ? existingConfiguration
         : {};
 
+    if (parameters[0] === "BASEROLE") {
+        if (parameters.length === 1) {
+            delete configuration.baseRole;
+            writeConfiguration(message.guild.id, configuration);
+            await message.channel.send("Base role cleared.");
+
+            return;
+        }
+
+        if (parameters.length === 2) {
+            const role = await message.guild.roles.fetch(parameters[1]);
+
+            if (!(role instanceof Role)) {
+                await message.channel.send("Invalid role ID provided.");
+
+                return;
+            }
+
+            configuration.baseRole = role.id;
+            writeConfiguration(message.guild.id, configuration);
+            await message.channel.send("Base role set.");
+
+            return;
+        }
+    }
+
     if (parameters[0] === "+") {
         const role = await message.guild.roles.fetch(parameters[1]);
 

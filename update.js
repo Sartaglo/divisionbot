@@ -1,6 +1,6 @@
 "use strict";
 
-const { Guild, GuildChannel, GuildMember, Message } = require("discord.js");
+const { Guild, GuildChannel, GuildMember, Message, Role } = require("discord.js");
 const { parsePlayer } = require("./parse-player");
 const { readConfiguration } = require("./read-configuration");
 
@@ -95,12 +95,19 @@ exports.update = async (guild, channel, parameters) => {
 
     const message = hasChannel ? await channel.send("Fetching the users in this server...") : null;
     const hasMessage = message instanceof Message;
+    const baseRole = typeof configuration.baseRole === "string"
+        ? await message.guild.roles.fetch(configuration.baseRole)
+        : null;
     const members = await guild.members.fetch();
+    const baseRoledMembers = baseRole instanceof Role
+        ? members.filter((member) => member.roles.cache.some((role) => role.id === baseRole.id))
+        : members;
+    const baseRoleSuffix = baseRole instanceof Role ? ` with role ${baseRole.name}` : '';
     let count = 0;
 
     try {
         await Promise.all(
-            members.map(
+            baseRoledMembers.map(
                 (member) => new Promise(
                     async (resolve) => {
                         const {
@@ -157,12 +164,12 @@ exports.update = async (guild, channel, parameters) => {
                         if (hasMessage) {
                             if (canManageNicknames && hasDivisionsAndCanManageRoles) {
                                 await message.edit(
-                                    `Updating the names and roles of users... ${count}/${members.size}`,
+                                    `Updating the names and roles of users... ${count}/${baseRoledMembers.size}`,
                                 );
                             } else if (canManageNicknames) {
-                                await message.edit(`Updated the names of users... ${count}/${members.size}`);
+                                await message.edit(`Updated the names of users... ${count}/${baseRoledMembers.size}`);
                             } else if (canManageRoles) {
-                                await message.edit(`Updated the roles of users... ${count}/${members.size}`);
+                                await message.edit(`Updated the roles of users... ${count}/${baseRoledMembers.size}`);
                             }
                         }
 
@@ -174,11 +181,11 @@ exports.update = async (guild, channel, parameters) => {
 
         if (hasMessage) {
             if (canManageNicknames && hasDivisionsAndCanManageRoles) {
-                await message.edit(`Updated the names and roles of ${count}/${members.size} users.`);
+                await message.edit(`Updated the names and roles of ${count}/${baseRoledMembers.size} users${baseRoleSuffix}.`);
             } else if (canManageNicknames) {
-                await message.edit(`Updated the names of ${count}/${members.size} users.`);
+                await message.edit(`Updated the names of ${count}/${baseRoledMembers.size} users${baseRoleSuffix}.`);
             } else if (canManageRoles) {
-                await message.edit(`Updated the roles of ${count}/${members.size} users.`);
+                await message.edit(`Updated the roles of ${count}/${baseRoledMembers.size} users${baseRoleSuffix}.`);
             }
         }
     } catch (error) {
